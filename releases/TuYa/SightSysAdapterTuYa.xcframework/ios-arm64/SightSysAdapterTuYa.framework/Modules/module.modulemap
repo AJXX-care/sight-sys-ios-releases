@@ -1,0 +1,11 @@
+framework module SightSysAdapterTuYa {
+  umbrella header "SightSysAdapterTuYa.h"
+  export *
+
+  module * { export * }
+}
+
+module SightSysAdapterTuYa.Swift {
+  header "SightSysAdapterTuYa-Swift.h"
+  requires objc
+}

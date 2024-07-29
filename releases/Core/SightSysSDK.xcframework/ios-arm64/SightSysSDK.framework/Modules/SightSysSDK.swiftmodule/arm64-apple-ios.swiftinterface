@@ -1,0 +1,1353 @@
+// swift-interface-format-version: 1.0
+// swift-compiler-version: Apple Swift version 5.10 (swiftlang-5.10.0.13 clang-1500.3.9.4)
+// swift-module-flags: -target arm64-apple-ios13.0 -enable-objc-interop -enable-library-evolution -swift-version 5 -enforce-exclusivity=checked -O -enable-bare-slash-regex -module-name SightSysSDK
+import Combine
+import Foundation
+import Moya
+@_exported import SightSysSDK
+import Swift
+import SwiftyJSON
+import UIKit
+import _Concurrency
+import _StringProcessing
+import _SwiftConcurrencyShims
+public protocol PushNotificationAdapter {
+  func registerDeviceToken(_ deviceToken: Swift.String)
+  func parseNotificationResponse(_ userInfo: [Swift.AnyHashable : Any]) -> SightSysSDK.NotificationMessage?
+}
+public struct TimePiece : Swift.Codable {
+  public func encode(to encoder: any Swift.Encoder) throws
+  public init(from decoder: any Swift.Decoder) throws
+}
+public typealias CapabilityDataCompletion = (Swift.Result<SightSysSDK.CapabilityData, SightSysSDK.ServiceError>) -> Swift.Void
+public typealias CapabilityDatasCallback = (Swift.Result<[Swift.String : SightSysSDK.CapabilityData], SightSysSDK.ServiceError>) -> Swift.Void
+@_hasMissingDesignatedInitializers final public class CapabilityService {
+  final public func isSupportCapability(_ code: any SightSysSDK.CapabilityCode) -> Swift.Bool
+  final public func getCapability(forCode code: any SightSysSDK.CapabilityCode, completion: @escaping SightSysSDK.CapabilityDataCompletion)
+  final public func setCapability(_ data: SightSysSDK.CapabilityData, forCode code: any SightSysSDK.CapabilityCode, completion: SightSysSDK.CapabilityDataCompletion? = nil)
+  final public func getCapabilities(forCodes codes: [any SightSysSDK.CapabilityCode], callback: @escaping SightSysSDK.CapabilityDatasCallback)
+  @objc deinit
+}
+public struct UserData : Swift.Codable {
+  public let id: SwiftyJSON.JSON
+  public let username: Swift.String
+  public let firstName: Swift.String?
+  public let lastName: Swift.String?
+  public let mobile: Swift.String?
+  public let email: Swift.String?
+  public let nickname: Swift.String?
+  public let avatar: Swift.String?
+  public let timeZoneId: Swift.String?
+  public let countryCode: Swift.String?
+  public let countryNumber: Swift.String
+  public let thirdPartyAccounts: [SwiftyJSON.JSON]
+  public func encode(to encoder: any Swift.Encoder) throws
+  public init(from decoder: any Swift.Decoder) throws
+}
+public enum LiveVideoQuality : Swift.Int {
+  case sd
+  case hd
+  case fhd
+  public init?(rawValue: Swift.Int)
+  public typealias RawValue = Swift.Int
+  public var rawValue: Swift.Int {
+    get
+  }
+}
+public struct WiFiInfo : Swift.Codable {
+  public let rssi: Swift.Int
+  public let ssid: Swift.String
+  public init(rssi: Swift.Int, ssid: Swift.String)
+  public func encode(to encoder: any Swift.Encoder) throws
+  public init(from decoder: any Swift.Decoder) throws
+}
+public enum IPCFlipMode : Swift.Int {
+  case none
+  case horizontalMirror
+  case verticalMirror
+  case rotate180
+  public init?(rawValue: Swift.Int)
+  public typealias RawValue = Swift.Int
+  public var rawValue: Swift.Int {
+    get
+  }
+}
+public protocol RealTimeVideoServiceDelegate : AnyObject {
+  func didCameraStartRecord(_ deviceUUID: Swift.String)
+  func didCameraStopRecord(_ deviceUUID: Swift.String)
+  func didCameraRecordError(error: SightSysSDK.ServiceError, deviceUUID: Swift.String)
+  func didCameraBeginTalk(_ deviceUUID: Swift.String)
+  func didCameraStopTalk(_ deviceUUID: Swift.String)
+  func didCameraTalkError(error: SightSysSDK.ServiceError, deviceUUID: Swift.String)
+}
+@_hasMissingDesignatedInitializers final public class RealTimeVideoService {
+  weak final public var delegate: (any SightSysSDK.RealTimeVideoServiceDelegate)? {
+    get
+    set
+  }
+  final public func setupCamera(completion: @escaping (Swift.Bool, SightSysSDK.ServiceError?) -> Swift.Void)
+  final public func startVideo(completion: @escaping (Swift.Bool, SightSysSDK.ServiceError?) -> Swift.Void)
+  final public func stopVideo(completion: @escaping (Swift.Bool, SightSysSDK.ServiceError?) -> Swift.Void)
+  final public func snapShoot(completion: @escaping (Swift.Bool, SightSysSDK.ServiceError?) -> Swift.Void)
+  final public func getVideoView() -> UIKit.UIView?
+  final public func startRecord()
+  final public func stopRecord()
+  final public func startTalk()
+  final public func stopTalk()
+  final public func enableMute(isMute: Swift.Bool)
+  final public func switchClarity(to clarityValue: Swift.Int)
+  @objc deinit
+}
+@_hasMissingDesignatedInitializers final public class AdapterManager {
+  public static func register(adapterType: any SightSysSDK.PlatformAdapter.Type, platform: SightSysSDK.AdapterPlatform)
+  @objc deinit
+}
+public protocol EventServiceAdapter : AnyObject {
+  func fetchEvents(eventTypes: [SightSysSDK.EventType]?, offset: Swift.Int, limit: Swift.Int, startTime: Swift.Int, endTime: Swift.Int, completion: @escaping SightSysSDK.EventCallback)
+  func fetchEventTypes(completion: @escaping SightSysSDK.EventTypeCallback)
+  func fetchEventDaysForCalendar(year: Swift.Int, month: Swift.Int, completion: @escaping SightSysSDK.EventCalendarCallback)
+  func removeEvents(messageIds: [Swift.String], completion: @escaping (Swift.Result<Swift.Void, SightSysSDK.ServiceError>) -> Swift.Void)
+  func startPlay(msgId: Swift.String, completion: @escaping (Swift.Result<Swift.Bool, SightSysSDK.ServiceError>) -> Swift.Void)
+  func pausePlay(msgId: Swift.String, completion: @escaping (Swift.Result<Swift.Bool, SightSysSDK.ServiceError>) -> Swift.Void)
+  func resumePlay(msgId: Swift.String, completion: @escaping (Swift.Result<Swift.Bool, SightSysSDK.ServiceError>) -> Swift.Void)
+  func stopPlay(msgId: Swift.String, completion: @escaping (Swift.Result<Swift.Bool, SightSysSDK.ServiceError>) -> Swift.Void)
+  func setMuteStatus(msgId: Swift.String, mute: Swift.Bool, completion: @escaping (Swift.Result<Swift.Bool, SightSysSDK.ServiceError>) -> Swift.Void)
+}
+public struct Country : Swift.Codable {
+  public let countryCode: Swift.String
+  public let countryName: Swift.String
+  public let phonePrefix: Swift.String
+  public let registrationMethod: Swift.String
+  public let apiBaseUrl: Swift.String
+  public init(countryCode: Swift.String, countryName: Swift.String, phonePrefix: Swift.String, registrationMethod: Swift.String, apiBaseUrl: Swift.String)
+  public func encode(to encoder: any Swift.Encoder) throws
+  public init(from decoder: any Swift.Decoder) throws
+}
+public struct CountryList : Swift.Codable {
+  public let count: Swift.Int
+  public let results: [SightSysSDK.Country]
+  public func encode(to encoder: any Swift.Encoder) throws
+  public init(from decoder: any Swift.Decoder) throws
+}
+public protocol Loggable {
+  var tag: Swift.String { get }
+  var logFolder: Foundation.URL { get }
+  var isLogToFileEnabled: Swift.Bool { get }
+  var platformTag: Swift.String { get }
+  func log(message: Swift.String, _ level: SightSysSDK.LogLevel)
+}
+public enum LogLevel : Swift.String {
+  case verbose
+  case debug
+  case info
+  case warn
+  case error
+  public init?(rawValue: Swift.String)
+  public typealias RawValue = Swift.String
+  public var rawValue: Swift.String {
+    get
+  }
+}
+extension SightSysSDK.Loggable {
+  public func log(message: Swift.String, _ level: SightSysSDK.LogLevel)
+}
+@propertyWrapper public struct Atomic<Value> {
+  public init(wrappedValue: Value)
+  public var wrappedValue: Value {
+    get
+    set
+  }
+}
+public enum UpgradeStatus : Swift.Int, Swift.Codable {
+  case noUpdate
+  case ready
+  case upgrading
+  case success
+  case failure
+  case waitingExecute
+  case downloaded
+  case timeout
+  case inQueue
+  case localPrepare
+  public init?(rawValue: Swift.Int)
+  public typealias RawValue = Swift.Int
+  public var rawValue: Swift.Int {
+    get
+  }
+}
+public struct FirmwareUpgradeModel : Swift.Codable {
+  public var desc: Swift.String
+  public var latestVersion: Swift.String
+  public var currentVersion: Swift.String
+  public var lastUpgradeTime: Foundation.TimeInterval
+  public init(desc: Swift.String, latestVersion: Swift.String, currentVersion: Swift.String, lastUpgradeTime: Foundation.TimeInterval)
+  public func encode(to encoder: any Swift.Encoder) throws
+  public init(from decoder: any Swift.Decoder) throws
+}
+public struct FirmwareUpgradeStatusModel : Swift.Codable {
+  public var upgradeStatus: SightSysSDK.UpgradeStatus
+  public var statusText: Swift.String?
+  public var statusTitle: Swift.String?
+  public var progress: Swift.Int
+  public var errorMessage: Swift.String?
+  public var remainTime: Swift.Int
+  public enum CodingKeys : Swift.String, Swift.CodingKey {
+    case upgradeStatus, statusText, statusTitle, progress, errorMessage, remainTime
+    public init?(rawValue: Swift.String)
+    public init?(stringValue: Swift.String)
+    public init?(intValue: Swift.Int)
+    public typealias RawValue = Swift.String
+    public var intValue: Swift.Int? {
+      get
+    }
+    public var rawValue: Swift.String {
+      get
+    }
+    public var stringValue: Swift.String {
+      get
+    }
+  }
+  public init(upgradeStatus: SightSysSDK.UpgradeStatus, statusText: Swift.String? = nil, statusTitle: Swift.String? = nil, progress: Swift.Int, errorMessage: Swift.String? = nil, remainTime: Swift.Int)
+  public init(from decoder: any Swift.Decoder) throws
+  public func encode(to encoder: any Swift.Encoder) throws
+}
+@_hasMissingDesignatedInitializers final public class FirmwareUpgradeService {
+  final public func checkUpgrade(completion: @escaping (Swift.Result<SightSysSDK.FirmwareUpgradeModel, SightSysSDK.ServiceError>) -> Swift.Void)
+  final public func startUpgrade(completion: @escaping (Swift.Result<Swift.Bool, SightSysSDK.ServiceError>) -> Swift.Void)
+  final public func cancelUpgrade(completion: @escaping (Swift.Result<Swift.Bool, SightSysSDK.ServiceError>) -> Swift.Void)
+  final public func getUpgradeStatus() -> SightSysSDK.FirmwareUpgradeStatusModel?
+  @objc deinit
+}
+public enum NightVisionMode : Swift.Int {
+  case auto
+  case ir
+  case color
+  public init?(rawValue: Swift.Int)
+  public typealias RawValue = Swift.Int
+  public var rawValue: Swift.Int {
+    get
+  }
+}
+extension ObjectiveC.NSObject {
+  public func toDictionary() -> [Swift.String : Any]
+  public func toJsonString() -> Swift.String?
+}
+extension Swift.String {
+  public func toDict() -> [Swift.String : Any]?
+}
+public enum ServiceError : Swift.Error {
+  case invalidArguments(Swift.String?)
+  case businessError(code: Swift.Int, message: Swift.String, details: Any? = nil)
+  case decodeError((any Swift.Error)?)
+  case networkError(Swift.String)
+  case adapterError(SightSysSDK.AdapterError)
+  case unknown(Swift.String?)
+  public var typeCode: Swift.Int {
+    get
+  }
+  public var innerCode: Swift.Int {
+    get
+  }
+  public var codeDescription: Swift.String {
+    get
+  }
+  public var message: Swift.String {
+    get
+  }
+  public var details: Any? {
+    get
+  }
+  public init(invalidArgumentsError message: Swift.String?)
+  public init(businessError code: Swift.Int, message: Swift.String, details: Any? = nil)
+  public init(decodeError error: (any Swift.Error)?)
+  public init(networkError message: Swift.String)
+  public init(unknown message: Swift.String?)
+}
+public protocol CapabilityCode {
+  init?(rawValue: Swift.String)
+  var rawValue: Swift.String { get }
+}
+public protocol _CapabilityCode : SightSysSDK.CapabilityCode {
+  static var allCasesSet: Swift.Set<Swift.String> { get }
+  static func contains(code: Swift.String) -> Swift.Bool
+}
+extension SightSysSDK._CapabilityCode where Self : Swift.CaseIterable, Self : Swift.RawRepresentable, Self.RawValue == Swift.String {
+  public static func makeAllCasesSet() -> Swift.Set<Swift.String>
+  public static func contains(code: Swift.String) -> Swift.Bool
+}
+public enum DeviceCapabilityCode : Swift.String, Swift.CaseIterable, SightSysSDK._CapabilityCode {
+  public static let allCasesSet: Swift.Set<Swift.String>
+  case deviceModel
+  case deviceName
+  case sdkVersion
+  case firmwareVersion
+  case indicatorLight
+  case isOnline
+  case lastOnlineTime
+  case deviceTimeZone
+  case deviceUUID
+  public init?(rawValue: Swift.String)
+  public typealias AllCases = [SightSysSDK.DeviceCapabilityCode]
+  public typealias RawValue = Swift.String
+  public static var allCases: [SightSysSDK.DeviceCapabilityCode] {
+    get
+  }
+  public var rawValue: Swift.String {
+    get
+  }
+}
+public enum NetworkCapabilityCode : Swift.String, Swift.CaseIterable, SightSysSDK._CapabilityCode {
+  public static let allCasesSet: Swift.Set<Swift.String>
+  case supportsNetworkMode
+  case macAddress
+  case ipAddress
+  case ssidName
+  case wifiSignalStrength
+  case iccidNumber
+  case signalStrength4G
+  case supportsSimCard
+  case networkModeStatus
+  public init?(rawValue: Swift.String)
+  public typealias AllCases = [SightSysSDK.NetworkCapabilityCode]
+  public typealias RawValue = Swift.String
+  public static var allCases: [SightSysSDK.NetworkCapabilityCode] {
+    get
+  }
+  public var rawValue: Swift.String {
+    get
+  }
+}
+public enum VideoCapabilityCode : Swift.String, Swift.CaseIterable, SightSysSDK._CapabilityCode {
+  public static let allCasesSet: Swift.Set<Swift.String>
+  case camCount
+  case videoQualityType
+  case camPrivateMode
+  case camFlip
+  case camOsdSwitch
+  case zoomControl
+  case zoomStop
+  case latestScreenshot
+  case nightVisionMode
+  case recordVideoQuality
+  case recordMode
+  case wideDynamicRangeMode
+  case nightvisionIrSwitch
+  public init?(rawValue: Swift.String)
+  public typealias AllCases = [SightSysSDK.VideoCapabilityCode]
+  public typealias RawValue = Swift.String
+  public static var allCases: [SightSysSDK.VideoCapabilityCode] {
+    get
+  }
+  public var rawValue: Swift.String {
+    get
+  }
+}
+public enum AudioCapabilityCode : Swift.String, Swift.CaseIterable, SightSysSDK._CapabilityCode {
+  public static let allCasesSet: Swift.Set<Swift.String>
+  case speakerSwitch
+  case pickupSwitch
+  case intercomVolume
+  case intercomMode
+  case videoMuteStatus
+  public init?(rawValue: Swift.String)
+  public typealias AllCases = [SightSysSDK.AudioCapabilityCode]
+  public typealias RawValue = Swift.String
+  public static var allCases: [SightSysSDK.AudioCapabilityCode] {
+    get
+  }
+  public var rawValue: Swift.String {
+    get
+  }
+}
+public enum PowerCapabilityCode : Swift.String, Swift.CaseIterable, SightSysSDK._CapabilityCode {
+  public static let allCasesSet: Swift.Set<Swift.String>
+  case remainingBatteryCapacity
+  case lowVoltageAlarm
+  case lowPowerWorkMode
+  public init?(rawValue: Swift.String)
+  public typealias AllCases = [SightSysSDK.PowerCapabilityCode]
+  public typealias RawValue = Swift.String
+  public static var allCases: [SightSysSDK.PowerCapabilityCode] {
+    get
+  }
+  public var rawValue: Swift.String {
+    get
+  }
+}
+public enum RecordingCapabilityCode : Swift.String, Swift.CaseIterable, SightSysSDK._CapabilityCode {
+  public static let allCasesSet: Swift.Set<Swift.String>
+  case cardRecordingSwitch
+  case cloudRecordingSwitch
+  public init?(rawValue: Swift.String)
+  public typealias AllCases = [SightSysSDK.RecordingCapabilityCode]
+  public typealias RawValue = Swift.String
+  public static var allCases: [SightSysSDK.RecordingCapabilityCode] {
+    get
+  }
+  public var rawValue: Swift.String {
+    get
+  }
+}
+public enum PTZControlCapabilityCode : Swift.String, Swift.CaseIterable, SightSysSDK._CapabilityCode {
+  public static let allCasesSet: Swift.Set<Swift.String>
+  case ptzControl
+  case ptzStop
+  case ptzSpeed
+  case ptzCalibration
+  case presetPositionSet
+  case ptzAutomaticCruise
+  case ptzZoomControl
+  public init?(rawValue: Swift.String)
+  public typealias AllCases = [SightSysSDK.PTZControlCapabilityCode]
+  public typealias RawValue = Swift.String
+  public static var allCases: [SightSysSDK.PTZControlCapabilityCode] {
+    get
+  }
+  public var rawValue: Swift.String {
+    get
+  }
+}
+public enum MotionDetectionCapabilityCode : Swift.String, Swift.CaseIterable, SightSysSDK._CapabilityCode {
+  public static let allCasesSet: Swift.Set<Swift.String>
+  case motionDetectionStatus
+  case motionDetectionSensitivity
+  case motionDetectionTimePeriod
+  case motionDetectionAlarm
+  case motionDetectionTracking
+  case motionDetectionType
+  case motionDetectionTypePet
+  case motionDetectionTypeFace
+  public init?(rawValue: Swift.String)
+  public typealias AllCases = [SightSysSDK.MotionDetectionCapabilityCode]
+  public typealias RawValue = Swift.String
+  public static var allCases: [SightSysSDK.MotionDetectionCapabilityCode] {
+    get
+  }
+  public var rawValue: Swift.String {
+    get
+  }
+}
+public enum SoundDetectionCapabilityCode : Swift.String, Swift.CaseIterable, SightSysSDK._CapabilityCode {
+  public static let allCasesSet: Swift.Set<Swift.String>
+  case soundDetectionStatus
+  case soundDetectionSensitivity
+  case soundDetectionAlarm
+  case soundDetectionTypeCry
+  public init?(rawValue: Swift.String)
+  public typealias AllCases = [SightSysSDK.SoundDetectionCapabilityCode]
+  public typealias RawValue = Swift.String
+  public static var allCases: [SightSysSDK.SoundDetectionCapabilityCode] {
+    get
+  }
+  public var rawValue: Swift.String {
+    get
+  }
+}
+public enum LightCapabilityCode : Swift.String, Swift.CaseIterable, SightSysSDK._CapabilityCode {
+  public static let allCasesSet: Swift.Set<Swift.String>
+  case lightStatus
+  case lightBrightness
+  case lightColorTemperature
+  public init?(rawValue: Swift.String)
+  public typealias AllCases = [SightSysSDK.LightCapabilityCode]
+  public typealias RawValue = Swift.String
+  public static var allCases: [SightSysSDK.LightCapabilityCode] {
+    get
+  }
+  public var rawValue: Swift.String {
+    get
+  }
+}
+public enum SDCardCapabilityCode : Swift.String, Swift.CaseIterable, SightSysSDK._CapabilityCode {
+  public static let allCasesSet: Swift.Set<Swift.String>
+  case sdCardStatus
+  case sdCardStorageStatus
+  case sdCardFormatCommand
+  case sdCardFormatStatus
+  case sdCardUnmount
+  case sdCardRecordSwitch
+  case sdCardRecordMode
+  case sdCardMuteRecordSwitch
+  case sdCardLoopRecordSwitch
+  public init?(rawValue: Swift.String)
+  public typealias AllCases = [SightSysSDK.SDCardCapabilityCode]
+  public typealias RawValue = Swift.String
+  public static var allCases: [SightSysSDK.SDCardCapabilityCode] {
+    get
+  }
+  public var rawValue: Swift.String {
+    get
+  }
+}
+public enum CapabilityCodeFactory {
+  public static func make(fromRawValue rawValue: Swift.String) -> (any SightSysSDK.CapabilityCode)?
+}
+public struct SpaceModel : Swift.Codable {
+  public let id: Swift.Int
+  public var name: Swift.String {
+    get
+  }
+  public var icon: Swift.String {
+    get
+  }
+  public let des: Swift.String?
+  public let user: Swift.Int
+  public let family: Swift.Int
+  public mutating func setName(_ name: Swift.String)
+  public mutating func setIcon(_ icon: Swift.String)
+  public func encode(to encoder: any Swift.Encoder) throws
+  public init(from decoder: any Swift.Decoder) throws
+}
+public protocol DeviceLANConnectAdapter {
+  func startActive(timeout: Foundation.TimeInterval, completion: @escaping SightSysSDK.DeviceConnectCallback)
+  func stop()
+  func destroy()
+}
+public enum RecordMode : Swift.Int {
+  case event
+  case continuous
+  public init?(rawValue: Swift.Int)
+  public typealias RawValue = Swift.Int
+  public var rawValue: Swift.Int {
+    get
+  }
+}
+public enum ConnectionMethod : Swift.String, Swift.Codable {
+  case ble
+  case ap
+  case qrcode
+  case g4
+  public init?(rawValue: Swift.String)
+  public typealias RawValue = Swift.String
+  public var rawValue: Swift.String {
+    get
+  }
+}
+public struct ProductCamera : Swift.Codable {
+  public func encode(to encoder: any Swift.Encoder) throws
+  public init(from decoder: any Swift.Decoder) throws
+}
+public struct ProductProperties : Swift.Codable {
+  public func encode(to encoder: any Swift.Encoder) throws
+  public init(from decoder: any Swift.Decoder) throws
+}
+public typealias DeviceConnectCallback = (SightSysSDK.ActivatorDevice?, (any Swift.Error)?) -> Swift.Void
+public protocol DeviceAPConnectAdapter {
+  #if compiler(>=5.3) && $AsyncAwait
+  func prepare(product: SightSysSDK.ProductCamera?, timeout: Foundation.TimeInterval) async -> Swift.Result<Swift.Void, SightSysSDK.AdapterError>
+  #endif
+  func stop()
+  #if compiler(>=5.3) && $AsyncAwait
+  func fetchDeviceWiFiList() async -> Swift.Result<[SightSysSDK.WiFiInfo], SightSysSDK.AdapterError>
+  #endif
+  func startConnectDevice(ssid: Swift.String, password: Swift.String, complete: SightSysSDK.DeviceConnectCallback?)
+  func destroy()
+}
+public enum EventType : Swift.String, Swift.Codable {
+  case ipc_motion
+  case ipc_doorbell
+  case ipc_dev_link
+  case ipc_passby
+  case ipc_linger
+  case ipc_leave_msg
+  case ipc_connected
+  case ipc_unconnected
+  case ipc_refuse
+  case ipc_human
+  case ipc_cat
+  case ipc_car
+  case ipc_baby_cry
+  case ipc_bang
+  case ipc_antibreak
+  case ipc_low_battery
+  public init?(rawValue: Swift.String)
+  public typealias RawValue = Swift.String
+  public var rawValue: Swift.String {
+    get
+  }
+}
+public struct Event : Swift.Codable {
+  public init(messageId: Swift.String, title: Swift.String, content: Swift.String, type: SightSysSDK.EventType, imageUrl: Swift.String, videoUrls: [Swift.String], audioUrls: [Swift.String], deviceId: Swift.String, manufacturerId: Swift.Int, eventTime: Swift.Int)
+  public func encode(to encoder: any Swift.Encoder) throws
+  public init(from decoder: any Swift.Decoder) throws
+}
+public protocol UserModule : AnyObject {
+  var userToken: Swift.String? { get }
+  var currentUser: SightSysSDK.User? { get }
+  #if compiler(>=5.3) && $AsyncAwait
+  func userTokenExpired() async
+  #endif
+}
+public typealias AuthStateDidChangeHandler = (_ userManger: SightSysSDK.UserService, _ user: SightSysSDK.User?) -> Swift.Void
+@_hasMissingDesignatedInitializers public class UserService : SightSysSDK.UserModule {
+  public var currentUser: SightSysSDK.User? {
+    get
+  }
+  public var currentCountry: SightSysSDK.Country? {
+    get
+  }
+  public static var shared: SightSysSDK.UserService {
+    get
+  }
+  public var userToken: Swift.String? {
+    get
+  }
+  #if compiler(>=5.3) && $AsyncAwait
+  public func fetchCountries() async -> Swift.Result<[SightSysSDK.Country], SightSysSDK.ServiceError>
+  #endif
+  public func setCurrentCountry(_ country: SightSysSDK.Country)
+  public func addAuthStateDidChangeListener(_ listener: @escaping SightSysSDK.AuthStateDidChangeHandler)
+  #if compiler(>=5.3) && $AsyncAwait
+  public func register(withMobile mobile: Swift.String, check: Swift.Bool = true) async -> Swift.Result<Swift.Void, SightSysSDK.ServiceError>
+  #endif
+  #if compiler(>=5.3) && $AsyncAwait
+  public func register(withEmail email: Swift.String, check: Swift.Bool = true) async -> Swift.Result<Swift.Void, SightSysSDK.ServiceError>
+  #endif
+  #if compiler(>=5.3) && $AsyncAwait
+  public func verifyRegisterCode(email: Swift.String?, mobile: Swift.String?, code: Swift.String) async -> Swift.Result<Swift.Void, SightSysSDK.ServiceError>
+  #endif
+  #if compiler(>=5.3) && $AsyncAwait
+  public func fetchUserInfo() async -> Swift.Result<SightSysSDK.UserData, SightSysSDK.ServiceError>
+  #endif
+  #if compiler(>=5.3) && $AsyncAwait
+  public func login(withIdentity identity: Swift.String, password: Swift.String) async -> Swift.Result<Swift.Void, SightSysSDK.ServiceError>
+  #endif
+  #if compiler(>=5.3) && $AsyncAwait
+  @discardableResult
+  public func logout() async -> Swift.Result<Swift.Void, SightSysSDK.ServiceError>
+  #endif
+  #if compiler(>=5.3) && $AsyncAwait
+  public func setPasswordByContact(oldPassword: Swift.String?, newPassword: Swift.String) async -> Swift.Result<Swift.Void, SightSysSDK.ServiceError>
+  #endif
+  #if compiler(>=5.3) && $AsyncAwait
+  public func resetPassword(username: Swift.String, verifyCode: Swift.String, newPassword: Swift.String) async -> Swift.Result<Swift.Void, SightSysSDK.ServiceError>
+  #endif
+  #if compiler(>=5.3) && $AsyncAwait
+  public func updateUser(_ user: SightSysSDK.User) async -> Swift.Result<Swift.Void, SightSysSDK.ServiceError>
+  #endif
+  #if compiler(>=5.3) && $AsyncAwait
+  public func userTokenExpired() async
+  #endif
+  @objc deinit
+}
+extension SightSysSDK.UserService {
+  #if compiler(>=5.3) && $AsyncAwait
+  public func checkUsername(username: Swift.String) async -> Swift.Result<SightSysSDK.UserData, SightSysSDK.ServiceError>
+  #endif
+  #if compiler(>=5.3) && $AsyncAwait
+  public func fetchUser(byId userId: Swift.String) async -> Swift.Result<SightSysSDK.UserData, SightSysSDK.ServiceError>
+  #endif
+  #if compiler(>=5.3) && $AsyncAwait
+  public func updateAvatar(userId: Swift.String, imagePath: Swift.String) async -> Swift.Result<SightSysSDK.UserData, SightSysSDK.ServiceError>
+  #endif
+  #if compiler(>=5.3) && $AsyncAwait
+  public func deleteUser(byId userId: Swift.String) async -> Swift.Result<Swift.Void, SightSysSDK.ServiceError>
+  #endif
+  #if compiler(>=5.3) && $AsyncAwait
+  public func uploadLogFile(userId: Swift.String, logFilePath: Swift.String) async -> Swift.Result<Swift.Void, SightSysSDK.ServiceError>
+  #endif
+}
+public protocol RealTimeVideoServiceAdapter : AnyObject {
+  var deviceUUID: Swift.String { get }
+  var delegate: (any SightSysSDK.RealTimeVideoServiceDelegate)? { get set }
+  func startPlay(completion: @escaping (Swift.Bool, SightSysSDK.ServiceError?) -> Swift.Void)
+  func stopPlay(completion: @escaping (Swift.Bool, SightSysSDK.ServiceError?) -> Swift.Void)
+  func snapShoot(completion: @escaping (Swift.Bool, SightSysSDK.ServiceError?) -> Swift.Void)
+  func videoView() -> UIKit.UIView?
+  func setupCamera(completion: @escaping (Swift.Bool, SightSysSDK.ServiceError?) -> Swift.Void)
+  func startRecord()
+  func stopRecord()
+  func startTalk()
+  func stopTalk()
+  func enableMute(isMute: Swift.Bool)
+  func switchClarity(to clarityValue: Swift.Int)
+}
+public protocol PlaybackVideoServiceDelegate : AnyObject {
+  func didConnect(deviceUUID: Swift.String)
+  func didDisconnect(deviceUUID: Swift.String)
+  func didReceiveRecordDayQueryData(deviceUUID: Swift.String, days: [Foundation.NSNumber])
+  func didStartPlayback(deviceUUID: Swift.String, playTime: Swift.Int, startTime: Swift.Int, stopTime: Swift.Int)
+  func didPausePlayback(deviceUUID: Swift.String)
+  func didStopPlayback(deviceUUID: Swift.String)
+  func didFinishPlayback(deviceUUID: Swift.String)
+  func didPlaybackError(deviceUUID: Swift.String, error: SightSysSDK.ServiceError)
+}
+@_hasMissingDesignatedInitializers final public class PlaybackVideoService {
+  weak final public var delegate: (any SightSysSDK.PlaybackVideoServiceDelegate)? {
+    get
+    set
+  }
+  final public func setupCamera(completion: @escaping (Swift.Bool, SightSysSDK.ServiceError?) -> Swift.Void)
+  final public func bindVideoRenderViewToContainner(_ view: UIKit.UIView)
+  final public func getVideoView() -> UIKit.UIView?
+  final public func searchAndStartPlayback(timestamp: Swift.Int)
+  final public func startPlayback(playTime: Swift.Int, startTime: Swift.Int, stopTime: Swift.Int)
+  final public func pausePlayback()
+  final public func resumePlayback()
+  final public func stopPlayback()
+  @objc deinit
+}
+public protocol Lock {
+  func lock()
+  func unlock()
+  @discardableResult
+  func exec<T>(_ work: () -> T) -> T
+}
+extension SightSysSDK.Lock {
+  @discardableResult
+  public func exec<T>(_ work: () -> T) -> T
+}
+public enum LockFactory {
+  public static func make() -> any SightSysSDK.Lock
+}
+extension Foundation.NSLock : SightSysSDK.Lock {
+}
+public struct ThirdPartyAccount {
+  public let info: SwiftyJSON.JSON
+  public init(info: SwiftyJSON.JSON)
+  public var platform: SightSysSDK.AdapterPlatform? {
+    get
+  }
+  public var username: Swift.String {
+    get
+  }
+  public var token: Swift.String {
+    get
+  }
+}
+public enum DeviceType : Swift.Int, Swift.Codable {
+  case hemeng
+  case tuya
+  public init?(rawValue: Swift.Int)
+  public typealias RawValue = Swift.Int
+  public var rawValue: Swift.Int {
+    get
+  }
+}
+public struct ManufacturerInfo : Swift.Codable {
+  public let id: Swift.Int
+  public let name: Swift.String
+  public func encode(to encoder: any Swift.Encoder) throws
+  public init(from decoder: any Swift.Decoder) throws
+}
+public struct IPCDevice : Swift.Codable {
+  public let id: Swift.Int
+  public let deviceId: Swift.String
+  public let name: Swift.String
+  public let manufacturer: SightSysSDK.ManufacturerInfo
+  public let thirdPartUuid: Swift.String
+  public let product: SightSysSDK.ProductCamera
+  public let space: SightSysSDK.SpaceModel?
+  public let attributes: SwiftyJSON.JSON?
+  public func encode(to encoder: any Swift.Encoder) throws
+  public init(from decoder: any Swift.Decoder) throws
+}
+public struct IPCBriefDevice : Swift.Codable {
+  public let id: Swift.Int
+  public let deviceId: Swift.String
+  public let name: Swift.String
+  public let productId: Swift.Int
+  public let manufacturer: SightSysSDK.DeviceType
+  public let thirdPartUuid: Swift.String
+  public let user: Swift.Int?
+  public let sharingFrom: Swift.String?
+  public let capabilities: [SightSysSDK.Capability]
+  public func encode(to encoder: any Swift.Encoder) throws
+  public init(from decoder: any Swift.Decoder) throws
+}
+public struct ActivatorDevice : Swift.Codable {
+  public init(deviceName: Swift.String, manufacturer: SightSysSDK.DeviceType, thirdPartUUID: Swift.String, attributes: SwiftyJSON.JSON)
+  public func encode(to encoder: any Swift.Encoder) throws
+  public init(from decoder: any Swift.Decoder) throws
+}
+@_hasMissingDesignatedInitializers final public class DeviceService : SightSysSDK.AdapterCapabilityDelegate {
+  public static var shared: SightSysSDK.DeviceService {
+    get
+  }
+  #if compiler(>=5.3) && $AsyncAwait
+  final public func fetchProductInfo(productId: Swift.String) async -> Swift.Result<SightSysSDK.ProductCamera, SightSysSDK.ServiceError>
+  #endif
+  #if compiler(>=5.3) && $AsyncAwait
+  final public func fetchDevices() async -> Swift.Result<[SightSysSDK.IPCBriefDevice], SightSysSDK.ServiceError>
+  #endif
+  #if compiler(>=5.3) && $AsyncAwait
+  final public func fetchDeviceDetails(deviceId: Swift.String) async -> Swift.Result<SightSysSDK.IPCDevice, SightSysSDK.ServiceError>
+  #endif
+  #if compiler(>=5.3) && $AsyncAwait
+  final public func getDevice(deviceId: Swift.String) async -> Swift.Result<SightSysSDK.IPCBriefDevice, SightSysSDK.ServiceError>
+  #endif
+  #if compiler(>=5.3) && $AsyncAwait
+  final public func fetchRooms() async -> Swift.Result<[SightSysSDK.SpaceModel], SightSysSDK.ServiceError>
+  #endif
+  #if compiler(>=5.3) && $AsyncAwait
+  final public func updateDevice(_ device: [Swift.String : Any]) async -> Swift.Result<Swift.Void, SightSysSDK.ServiceError>
+  #endif
+  #if compiler(>=5.3) && $AsyncAwait
+  final public func deleteDevice(deviceId: Swift.String) async -> Swift.Result<Swift.Void, SightSysSDK.ServiceError>
+  #endif
+  @objc deinit
+}
+extension SightSysSDK.DeviceService {
+  final public func makeCapabilityService(ofDevice device: SightSysSDK.IPCBriefDevice) -> SightSysSDK.CapabilityService
+  final public func setCapabilityDelegate(_ capabilityDelegate: any SightSysSDK.CapabilityDelegate)
+  final public func didCapabilityDataChanged(deviceId: Swift.String, code: any SightSysSDK.CapabilityCode, data: SightSysSDK.CapabilityData)
+}
+extension SightSysSDK.DeviceService {
+  final public func makeFirmwareUpgradeService(ofDevice device: SightSysSDK.IPCBriefDevice) -> SightSysSDK.FirmwareUpgradeService
+}
+extension SightSysSDK.DeviceService {
+  #if compiler(>=5.3) && $AsyncAwait
+  final public func sendInvitation(deviceId: Swift.String, userId: Swift.String) async -> Swift.Result<SightSysSDK.InvitationResponse, SightSysSDK.ServiceError>
+  #endif
+  #if compiler(>=5.3) && $AsyncAwait
+  final public func getInvitationByToken(token: Swift.String) async -> Swift.Result<SightSysSDK.Invitation, SightSysSDK.ServiceError>
+  #endif
+  #if compiler(>=5.3) && $AsyncAwait
+  final public func acceptInvitation(token: Swift.String) async -> Swift.Result<Swift.Void, SightSysSDK.ServiceError>
+  #endif
+  #if compiler(>=5.3) && $AsyncAwait
+  final public func createDeviceShare(deviceId: Swift.String, userId: Swift.String) async -> Swift.Result<Swift.Void, SightSysSDK.ServiceError>
+  #endif
+  #if compiler(>=5.3) && $AsyncAwait
+  final public func getDeviceShares(deviceId: Swift.String) async -> Swift.Result<[SightSysSDK.Share], SightSysSDK.ServiceError>
+  #endif
+  #if compiler(>=5.3) && $AsyncAwait
+  final public func delDeviceShares(deviceId: Swift.String, shareId: Swift.String) async -> Swift.Result<Swift.Void, SightSysSDK.ServiceError>
+  #endif
+}
+extension SightSysSDK.DeviceService {
+  final public func makeRealTimeVideoService(ofDevice device: SightSysSDK.IPCBriefDevice) -> SightSysSDK.RealTimeVideoService
+}
+extension SightSysSDK.DeviceService {
+  final public func makePlaybackVideoService(ofDevice device: SightSysSDK.IPCBriefDevice) -> SightSysSDK.PlaybackVideoService
+}
+extension SightSysSDK.DeviceService {
+  final public func makeEventService(ofDevice device: SightSysSDK.IPCBriefDevice) -> SightSysSDK.EventService
+}
+public protocol DeviceShareServiceAdapter {
+  var deviceUUID: Swift.String { get }
+  func createShare(userData: SightSysSDK.UserData, deviceId: Swift.String, completion: @escaping (Swift.Result<Swift.Void, SightSysSDK.ServiceError>) -> Swift.Void)
+  func sendInvite(userData: SightSysSDK.UserData, devId: Swift.String, completion: @escaping (Swift.Result<Swift.String, SightSysSDK.ServiceError>) -> Swift.Void)
+  func confirmInvite(shareId: Swift.Int, completion: @escaping (Swift.Result<Swift.Void, SightSysSDK.ServiceError>) -> Swift.Void)
+  func addHomeMember(with userData: SightSysSDK.UserData, completion: @escaping (Swift.Result<Swift.Void, SightSysSDK.ServiceError>) -> Swift.Void)
+}
+public protocol CapabilityDelegate : AnyObject {
+  func didCapabilityDataChanged(deviceId: Swift.String, code: any SightSysSDK.CapabilityCode, data: SightSysSDK.CapabilityData)
+}
+@_hasMissingDesignatedInitializers final public class DeviceShareService {
+  #if compiler(>=5.3) && $AsyncAwait
+  final public func getDeviceSharesAPI(deviceId: Swift.String) async -> Swift.Result<[SightSysSDK.Share], SightSysSDK.ServiceError>
+  #endif
+  #if compiler(>=5.3) && $AsyncAwait
+  final public func postShareAPI(deviceId: Swift.String, userId: Swift.String) async -> Swift.Result<Swift.Void, SightSysSDK.ServiceError>
+  #endif
+  #if compiler(>=5.3) && $AsyncAwait
+  final public func deleteShareAPI(shareId: Swift.String) async -> Swift.Result<Swift.Void, SightSysSDK.ServiceError>
+  #endif
+  #if compiler(>=5.3) && $AsyncAwait
+  final public func postInvitationAPI(deviceId: Swift.String, token: Swift.String? = nil, inviteeUserId: Swift.String) async -> Swift.Result<SightSysSDK.InvitationResponse, SightSysSDK.ServiceError>
+  #endif
+  #if compiler(>=5.3) && $AsyncAwait
+  final public func acceptInvitationAPI(token: Swift.String) async -> Swift.Result<Swift.Void, SightSysSDK.ServiceError>
+  #endif
+  #if compiler(>=5.3) && $AsyncAwait
+  final public func addMemberToHome(userId: Swift.String) async -> Swift.Result<Swift.Void, SightSysSDK.ServiceError>
+  #endif
+  #if compiler(>=5.3) && $AsyncAwait
+  final public func sendInvitation(deviceId: Swift.String, userId: Swift.String) async -> Swift.Result<SightSysSDK.InvitationResponse, SightSysSDK.ServiceError>
+  #endif
+  #if compiler(>=5.3) && $AsyncAwait
+  final public func acceptInvitation(token: Swift.String) async -> Swift.Result<Swift.Void, SightSysSDK.ServiceError>
+  #endif
+  #if compiler(>=5.3) && $AsyncAwait
+  final public func createDeviceShare(deviceId: Swift.String, userId: Swift.String) async -> Swift.Result<Swift.Void, SightSysSDK.ServiceError>
+  #endif
+  @objc deinit
+}
+public protocol NotificationSceneAction {
+}
+public struct NotificationMessage : Swift.Codable {
+  public init(command: Swift.String, payload: [Swift.String : Swift.String])
+  public func encode(to encoder: any Swift.Encoder) throws
+  public init(from decoder: any Swift.Decoder) throws
+}
+public class PushNotificationService {
+  public var pushAdapters: [any SightSysSDK.PushNotificationAdapter]
+  public init()
+  public func initializeAdapters()
+  public func registerDeviceToken(_ deviceToken: Swift.String)
+  public func parseNotificationResponse(_ userInfo: [Swift.AnyHashable : Any]) -> SightSysSDK.NotificationMessage?
+  @objc deinit
+}
+public typealias EventCalendarCallback = (Swift.Result<[Swift.String], SightSysSDK.ServiceError>) -> Swift.Void
+public typealias EventTypeCallback = (Swift.Result<[SightSysSDK.EventType], SightSysSDK.ServiceError>) -> Swift.Void
+public typealias EventCallback = (Swift.Result<[SightSysSDK.Event], SightSysSDK.ServiceError>) -> Swift.Void
+@_hasMissingDesignatedInitializers final public class EventService {
+  final public func fetchEvents(eventTypes: [SightSysSDK.EventType]?, offset: Swift.Int, limit: Swift.Int, startTime: Swift.Int, endTime: Swift.Int, completion: @escaping SightSysSDK.EventCallback)
+  final public func fetchEventTypes(completion: @escaping SightSysSDK.EventTypeCallback)
+  final public func fetchEventDaysForCalendar(year: Swift.Int, month: Swift.Int, completion: @escaping SightSysSDK.EventCalendarCallback)
+  final public func removeEvents(messageIds: [Swift.String], completion: @escaping (Swift.Result<Swift.Void, SightSysSDK.ServiceError>) -> Swift.Void)
+  final public func startPlay(msgId: Swift.String, completion: @escaping (Swift.Result<Swift.Bool, SightSysSDK.ServiceError>) -> Swift.Void)
+  final public func pausePlay(msgId: Swift.String, completion: @escaping (Swift.Result<Swift.Bool, SightSysSDK.ServiceError>) -> Swift.Void)
+  final public func resumePlay(msgId: Swift.String, completion: @escaping (Swift.Result<Swift.Bool, SightSysSDK.ServiceError>) -> Swift.Void)
+  final public func stopPlay(msgId: Swift.String, completion: @escaping (Swift.Result<Swift.Bool, SightSysSDK.ServiceError>) -> Swift.Void)
+  final public func setMuteStatus(msgId: Swift.String, mute: Swift.Bool, completion: @escaping (Swift.Result<Swift.Bool, SightSysSDK.ServiceError>) -> Swift.Void)
+  @objc deinit
+}
+public enum AdapterPlatform : Swift.String {
+  case tuya
+  case hemeng
+  case sightsys
+  case placementAll
+  public init?(rawValue: Swift.String)
+  public typealias RawValue = Swift.String
+  public var rawValue: Swift.String {
+    get
+  }
+}
+public protocol CapabilityHandler {
+  static func contains(code: Swift.String) -> Swift.Bool
+  init(deviceUUID: Swift.String)
+  func isSupported(forCodeString codeString: Swift.String) -> Swift.Bool
+  func getData(forCodeString codeString: Swift.String, completion: @escaping SightSysSDK.CapabilityDataCompletion)
+  func setData(_ data: SightSysSDK.CapabilityData, forCodeString codeString: Swift.String, completion: SightSysSDK.CapabilityDataCompletion?)
+}
+public protocol CapabilityCodeHandler : SightSysSDK.CapabilityHandler {
+  associatedtype Code : SightSysSDK._CapabilityCode
+  func isSupported(forCode code: Self.Code) -> Swift.Bool
+  func getData(forCode code: Self.Code, completion: @escaping SightSysSDK.CapabilityDataCompletion)
+  func setData(_ data: SightSysSDK.CapabilityData, forCode code: Self.Code, completion: SightSysSDK.CapabilityDataCompletion?)
+}
+extension SightSysSDK.CapabilityCodeHandler {
+  public static func contains(code: Swift.String) -> Swift.Bool
+}
+extension SightSysSDK.CapabilityCodeHandler {
+  public func isSupported(forCodeString codeString: Swift.String) -> Swift.Bool
+  public func getData(forCodeString codeString: Swift.String, completion: @escaping SightSysSDK.CapabilityDataCompletion)
+  public func setData(_ data: SightSysSDK.CapabilityData, forCodeString codeString: Swift.String, completion: SightSysSDK.CapabilityDataCompletion?)
+}
+public protocol CapabilityCodeHandleStrategy : AnyObject {
+  var deviceUUID: Swift.String { get }
+  var handlerTypes: [any SightSysSDK.CapabilityHandler.Type] { get }
+  var handlers: [Swift.String : any SightSysSDK.CapabilityHandler] { get set }
+  func makeHandler(forCode code: Swift.String) -> (any SightSysSDK.CapabilityHandler)?
+}
+extension SightSysSDK.CapabilityCodeHandleStrategy {
+  public func makeHandler(forCode code: Swift.String) -> (any SightSysSDK.CapabilityHandler)?
+}
+open class CapabilityCodeHandlerBase<Code> : SightSysSDK.CapabilityCodeHandler where Code : SightSysSDK._CapabilityCode {
+  final public let deviceUUID: Swift.String
+  required public init(deviceUUID: Swift.String)
+  open func isSupported(forCode code: Code) -> Swift.Bool
+  open func getData(forCode code: Code, completion: @escaping SightSysSDK.CapabilityDataCompletion)
+  open func setData(_ data: SightSysSDK.CapabilityData, forCode code: Code, completion: SightSysSDK.CapabilityDataCompletion?)
+  @objc deinit
+}
+public protocol PlatformAdapter : AnyObject {
+  init()
+  func initialize(_ parameters: [Swift.String : Any], completion: @escaping (Swift.Result<Swift.Void, SightSysSDK.AdapterError>) -> Swift.Void)
+  func makeUserService() -> any SightSysSDK.UserServiceAdapter
+  func makeAPConnectService() -> any SightSysSDK.DeviceAPConnectAdapter
+  func makeBLEConnectService() -> any SightSysSDK.DeviceBLEConnectAdapter
+  func makeLANConnectService() -> any SightSysSDK.DeviceLANConnectAdapter
+  func makeQrCodeConnectService() -> any SightSysSDK.DeviceQrCodeConnectAdapter
+  func makeCapabilityService(forDeviceUUID deviceUUID: Swift.String) -> any SightSysSDK.CapabilityServiceAdapter
+  func makeDeviceShareService(forDeviceUUID deviceUUID: Swift.String) -> any SightSysSDK.DeviceShareServiceAdapter
+  func makeRealTimeVideoService(forDeviceUUID deviceUUID: Swift.String) -> any SightSysSDK.RealTimeVideoServiceAdapter
+  func makeFirmwareUpgradeService(forDeviceUUID deviceUUID: Swift.String) -> any SightSysSDK.FirmwareUpgradeAdapter
+  func makeEventService(forDeviceUUID deviceUUID: Swift.String) -> any SightSysSDK.EventServiceAdapter
+  func makePlaybackService(forDeviceUUID deviceUUID: Swift.String) -> any SightSysSDK.PlaybackVideoServiceAdapter
+  func makePushNotificationService() -> any SightSysSDK.PushNotificationAdapter
+  func setCapabilityDelegate(_ capabilityDelegate: any SightSysSDK.AdapterCapabilityDelegate)
+}
+public protocol AdapterLog {
+  static var platform: SightSysSDK.AdapterPlatform { get }
+  static var isLogEnabled: Swift.Bool { get set }
+  static func emoji() -> Swift.String
+}
+public protocol DeviceBLEConnectAdapter {
+  #if compiler(>=5.3) && $AsyncAwait
+  func prepare(timeout: Foundation.TimeInterval) async -> Swift.Result<Swift.Void, SightSysSDK.AdapterError>
+  #endif
+  func startSearch() -> _Concurrency.AsyncStream<SightSysSDK.BLEPairingDevice>
+  func startActiveDevice(_ deviceId: Swift.String, ssid: Swift.String, password: Swift.String, complete: SightSysSDK.DeviceConnectCallback?)
+  func stopSearch()
+  func stopActivate()
+  func destroy()
+}
+@_hasMissingDesignatedInitializers final public class DeviceQrCodeConnectService {
+  public static var shared: SightSysSDK.DeviceQrCodeConnectService {
+    get
+  }
+  #if compiler(>=5.3) && $AsyncAwait
+  final public func createQrCode(ssid: Swift.String, password: Swift.String) async -> Swift.Result<[Swift.String], SightSysSDK.ServiceError>
+  #endif
+  final public func startActivate(timeout: Foundation.TimeInterval, completion: @escaping (_ device: SightSysSDK.IPCDevice?, _ failure: (any Swift.Error)?) -> Swift.Void)
+  final public func stopActiveDevice()
+  final public func destroy()
+  @objc deinit
+}
+public class SightSysOptions {
+  public init()
+  @objc deinit
+}
+@_hasMissingDesignatedInitializers public class SightSysSDK {
+  final public let options: SightSysSDK.SightSysOptions
+  public static var shared: SightSysSDK.SightSysSDK {
+    get
+  }
+  public static func initiate(_ options: SightSysSDK.SightSysOptions)
+  @objc deinit
+}
+public enum CapabilityData : Swift.Codable {
+  case boolValue(Swift.Bool?)
+  case doubleValue(Swift.Double?)
+  case enumValue([Swift.Int]?)
+  case stringValue(Swift.String?)
+  case dateValue(Foundation.Date?)
+  case intValue(Swift.Int?)
+  public init<Raw>(_ raw: Raw) where Raw : Swift.RawRepresentable, Raw.RawValue == Swift.Int
+  public init<Raw>(_ raw: Raw) where Raw : Swift.RawRepresentable, Raw.RawValue == Swift.String
+  public var boolValue: Swift.Bool? {
+    get
+  }
+  public var doubleValue: Swift.Double? {
+    get
+  }
+  public var enumValue: [Swift.Int]? {
+    get
+  }
+  public var stringValue: Swift.String? {
+    get
+  }
+  public var dateValue: Foundation.Date? {
+    get
+  }
+  public var intValue: Swift.Int? {
+    get
+  }
+  public init(from decoder: any Swift.Decoder) throws
+  public func encode(to encoder: any Swift.Encoder) throws
+}
+public struct Capability : Swift.Codable {
+  public enum DataMode : Swift.String, Swift.Codable {
+    case readwrite
+    case readonly
+    case writeonly
+    public init?(rawValue: Swift.String)
+    public typealias RawValue = Swift.String
+    public var rawValue: Swift.String {
+      get
+    }
+  }
+  public enum DataType : Swift.String, Swift.Codable {
+    case bool
+    case double
+    case enumeration
+    case string
+    case datetime
+    public init?(rawValue: Swift.String)
+    public typealias RawValue = Swift.String
+    public var rawValue: Swift.String {
+      get
+    }
+  }
+  public let code: Swift.String
+  public let identifier: Swift.String?
+  public let dataMode: SightSysSDK.Capability.DataMode?
+  public let dataType: SightSysSDK.Capability.DataType
+  public var data: SightSysSDK.CapabilityData
+  public func encode(to encoder: any Swift.Encoder) throws
+  public init(from decoder: any Swift.Decoder) throws
+}
+extension SightSysSDK.CapabilityData {
+  public var value: Any? {
+    get
+  }
+}
+@_hasMissingDesignatedInitializers final public class DeviceBLEConnectService {
+  public static var shared: SightSysSDK.DeviceBLEConnectService {
+    get
+  }
+  #if compiler(>=5.3) && $AsyncAwait
+  final public func startSearch(product: SightSysSDK.ProductCamera?, timeout: Foundation.TimeInterval = 60) async -> _Concurrency.AsyncThrowingStream<SightSysSDK.BLEPairingDevice, any Swift.Error>
+  #endif
+  final public func stopSearch()
+  final public func stopActivate()
+  final public func startActiveDevice(_ deviceId: Swift.String, ssid: Swift.String, password: Swift.String, completion: ((SightSysSDK.IPCDevice?, SightSysSDK.ServiceError?) -> Swift.Void)?)
+  @objc deinit
+}
+@_hasMissingDesignatedInitializers public class DeviceAPConnectService {
+  public static var shared: SightSysSDK.DeviceAPConnectService {
+    get
+  }
+  #if compiler(>=5.3) && $AsyncAwait
+  public func prepare(product: SightSysSDK.ProductCamera?, timeout: Foundation.TimeInterval = 60) async -> Swift.Result<Swift.Void, SightSysSDK.ServiceError>
+  #endif
+  #if compiler(>=5.3) && $AsyncAwait
+  public func fetchDeviceWiFiList() async -> Swift.Result<[SightSysSDK.WiFiInfo], SightSysSDK.ServiceError>
+  #endif
+  #if compiler(>=5.3) && $AsyncAwait
+  public func startConnectDevice(ssid: Swift.String, password: Swift.String) async -> Swift.Result<SightSysSDK.IPCDevice, SightSysSDK.ServiceError>
+  #endif
+  public func stop()
+  @objc deinit
+}
+public protocol PlaybackVideoServiceAdapter : AnyObject {
+  var delegate: (any SightSysSDK.PlaybackVideoServiceDelegate)? { get set }
+  func setupCamera(completion: @escaping (Swift.Bool, SightSysSDK.ServiceError?) -> Swift.Void)
+  func videoView() -> UIKit.UIView?
+  func bindVideoRenderViewToContainner(_ view: UIKit.UIView)
+  func searchAndStartPlayback(timestamp: Swift.Int)
+  func startPlayback(playTime: Swift.Int, startTime: Swift.Int, stopTime: Swift.Int)
+  func pausePlayback()
+  func resumePlayback()
+  func stopPlayback()
+}
+public protocol FirmwareUpgradeAdapter {
+  var deviceUUID: Swift.String { get }
+  var upgradeStatus: SightSysSDK.FirmwareUpgradeStatusModel? { get }
+  func checkFirmwareUpgrade(completion: @escaping (Swift.Result<SightSysSDK.FirmwareUpgradeModel, SightSysSDK.ServiceError>) -> Swift.Void)
+  func startFirmwareUpgrade(completion: @escaping (Swift.Result<Swift.Bool, SightSysSDK.ServiceError>) -> Swift.Void)
+  func cancelFirmwareUpgrade(completion: @escaping (Swift.Result<Swift.Bool, SightSysSDK.ServiceError>) -> Swift.Void)
+}
+public struct InvitationRequest : Swift.Codable {
+  public var token: Swift.String?
+  public var deviceId: Swift.Int
+  public var invitee: Swift.Int
+  public init(token: Swift.String? = nil, deviceId: Swift.Int, invitee: Swift.Int)
+  public func encode(to encoder: any Swift.Encoder) throws
+  public init(from decoder: any Swift.Decoder) throws
+}
+extension SightSysSDK.InvitationRequest : Swift.CustomStringConvertible {
+  public var description: Swift.String {
+    get
+  }
+}
+public struct Invitation : Swift.Codable {
+  public let id: Swift.Int
+  public let inviterId: Swift.Int
+  public let inviteeId: Swift.Int?
+  public let deviceId: Swift.Int
+  public var status: Swift.String
+  public var token: Swift.String
+  public func encode(to encoder: any Swift.Encoder) throws
+}
+extension SightSysSDK.Invitation {
+  public init(from decoder: any Swift.Decoder) throws
+}
+public protocol Lockable {
+  func lock()
+  func unlock()
+}
+extension SightSysSDK.Lockable {
+  @discardableResult
+  public func access<T>(_ closure: () throws -> T) rethrows -> T
+}
+final public class UnfairLock : SightSysSDK.Lockable {
+  public init()
+  @objc deinit
+  final public func lock()
+  final public func unlock()
+}
+final public class Protected<Value> {
+  public init(value: Value)
+  final public func read<P>(_ closure: (Value) throws -> P) rethrows -> P
+  final public func read() -> Value
+  @discardableResult
+  final public func write<P>(_ closure: (inout Value) throws -> P) rethrows -> P
+  final public func write(_ value: Value)
+  final public subscript<P>(dynamicMember keyPath: Swift.WritableKeyPath<Value, P>) -> P {
+    get
+    set
+  }
+  final public subscript<P>(dynamicMember keyPath: Swift.KeyPath<Value, P>) -> P {
+    get
+  }
+  @objc deinit
+}
+extension SightSysSDK.Protected : Swift.Equatable where Value : Swift.Equatable {
+  public static func == (lhs: SightSysSDK.Protected<Value>, rhs: SightSysSDK.Protected<Value>) -> Swift.Bool
+}
+extension SightSysSDK.Protected : Swift.Hashable where Value : Swift.Hashable {
+  final public func hash(into hasher: inout Swift.Hasher)
+  final public var hashValue: Swift.Int {
+    get
+  }
+}
+public struct InvitationResponse : Swift.Codable {
+  public var inviteUrl: Swift.String
+  public var qrImageUrl: Swift.String
+  public init(inviteUrl: Swift.String, qrImageUrl: Swift.String)
+  public func encode(to encoder: any Swift.Encoder) throws
+  public init(from decoder: any Swift.Decoder) throws
+}
+extension SightSysSDK.InvitationResponse : Swift.CustomStringConvertible {
+  public var description: Swift.String {
+    get
+  }
+}
+public protocol DeviceQrCodeConnectAdapter {
+  #if compiler(>=5.3) && $AsyncAwait
+  func createQrCode(ssid: Swift.String, password: Swift.String) async -> Swift.Result<[Swift.String], SightSysSDK.AdapterError>
+  #endif
+  func startActive(timeout: Foundation.TimeInterval, completion: @escaping SightSysSDK.DeviceConnectCallback)
+  func stop()
+  func destroy()
+}
+final public class User {
+  final public let id: Swift.String
+  final public let username: Swift.String
+  final public let firstName: Swift.String?
+  final public let lastName: Swift.String?
+  final public let mobile: Swift.String?
+  final public let email: Swift.String?
+  final public let nickname: Swift.String?
+  final public let avatar: Swift.String?
+  final public let timeZoneId: Swift.String?
+  final public let countryCode: Swift.String?
+  final public let countryNumber: Swift.String
+  public init(data: SightSysSDK.UserData)
+  final public func copyWith(nickname: Swift.String? = nil, firstName: Swift.String? = nil, lastName: Swift.String? = nil, countryCode: Swift.String? = nil, countryNumber: Swift.String) -> SightSysSDK.User
+  final public var json: Swift.String? {
+    get
+  }
+  @objc deinit
+}
+public enum AdapterError : Swift.Error {
+  case initFailed(platform: SightSysSDK.AdapterPlatform, code: Swift.Int)
+  case authError(platform: SightSysSDK.AdapterPlatform, code: Swift.Int)
+  case deviceConnectionError(platform: SightSysSDK.AdapterPlatform, code: Swift.Int)
+  case nodata(platform: SightSysSDK.AdapterPlatform, msg: Swift.String)
+  case innerError(code: Swift.Int, message: Swift.String)
+  public var errorCode: Swift.Int {
+    get
+  }
+}
+public struct BLEPairingDevice : Swift.Codable {
+  public var name: Swift.String
+  public var uuid: Swift.String
+  public var deviceType: SightSysSDK.DeviceType
+  public init(name: Swift.String, uuid: Swift.String, deviceType: SightSysSDK.DeviceType)
+  public func encode(to encoder: any Swift.Encoder) throws
+  public init(from decoder: any Swift.Decoder) throws
+}
+public protocol UserServiceAdapter : AnyObject {
+  var isLogin: Swift.Bool { get }
+  #if compiler(>=5.3) && $AsyncAwait
+  func authUser(_ parameters: [Swift.String : Any]) async -> Swift.Result<Swift.Void, SightSysSDK.AdapterError>
+  #endif
+  #if compiler(>=5.3) && $AsyncAwait
+  func logout() async -> Swift.Result<Swift.Void, SightSysSDK.AdapterError>
+  #endif
+}
+public protocol CapabilityServiceAdapter {
+  var deviceUUID: Swift.String { get }
+  func isSupportCapability(_ code: any SightSysSDK.CapabilityCode) -> Swift.Bool
+  func getCapability(forCode code: any SightSysSDK.CapabilityCode, completion: @escaping SightSysSDK.CapabilityDataCompletion)
+  func setCapability(data: SightSysSDK.CapabilityData, forCode code: any SightSysSDK.CapabilityCode, completion: SightSysSDK.CapabilityDataCompletion?)
+}
+@objc(SightSysAdapterRegister) public protocol SightSysAdapterRegister {
+  @objc static func adapterRegister()
+}
+public protocol AdapterCapabilityDelegate : AnyObject {
+  func didCapabilityDataChanged(deviceId: Swift.String, code: any SightSysSDK.CapabilityCode, data: SightSysSDK.CapabilityData)
+}
+public struct Share : Swift.Codable {
+  public var id: Swift.Int?
+  public var deviceId: Swift.Int?
+  public var userAvatar: Swift.String?
+  public var userFullName: Swift.String?
+  public var user: Swift.Int?
+  public var owner: Swift.Int?
+  public func encode(to encoder: any Swift.Encoder) throws
+  public init(from decoder: any Swift.Decoder) throws
+}
+extension SightSysSDK.Share : Swift.CustomStringConvertible {
+  public var description: Swift.String {
+    get
+  }
+}
+@_hasMissingDesignatedInitializers final public class DeviceLANConnectService {
+  public static var shared: SightSysSDK.DeviceLANConnectService {
+    get
+  }
+  final public func startActivate(product: SightSysSDK.ProductCamera?, timeout: Foundation.TimeInterval, completion: @escaping (_ device: SightSysSDK.IPCDevice?, _ failure: (any Swift.Error)?) -> Swift.Void)
+  final public func stop()
+  @objc deinit
+}
+public enum AdapterConstants {
+  public static let isLogEnabledKey: Swift.String
+}
+extension SightSysSDK.LiveVideoQuality : Swift.Equatable {}
+extension SightSysSDK.LiveVideoQuality : Swift.Hashable {}
+extension SightSysSDK.LiveVideoQuality : Swift.RawRepresentable {}
+extension SightSysSDK.IPCFlipMode : Swift.Equatable {}
+extension SightSysSDK.IPCFlipMode : Swift.Hashable {}
+extension SightSysSDK.IPCFlipMode : Swift.RawRepresentable {}
+extension SightSysSDK.LogLevel : Swift.Equatable {}
+extension SightSysSDK.LogLevel : Swift.Hashable {}
+extension SightSysSDK.LogLevel : Swift.RawRepresentable {}
+extension SightSysSDK.UpgradeStatus : Swift.Equatable {}
+extension SightSysSDK.UpgradeStatus : Swift.Hashable {}
+extension SightSysSDK.UpgradeStatus : Swift.RawRepresentable {}
+extension SightSysSDK.FirmwareUpgradeStatusModel.CodingKeys : Swift.Equatable {}
+extension SightSysSDK.FirmwareUpgradeStatusModel.CodingKeys : Swift.Hashable {}
+extension SightSysSDK.FirmwareUpgradeStatusModel.CodingKeys : Swift.RawRepresentable {}
+extension SightSysSDK.NightVisionMode : Swift.Equatable {}
+extension SightSysSDK.NightVisionMode : Swift.Hashable {}
+extension SightSysSDK.NightVisionMode : Swift.RawRepresentable {}
+extension SightSysSDK.DeviceCapabilityCode : Swift.Equatable {}
+extension SightSysSDK.DeviceCapabilityCode : Swift.Hashable {}
+extension SightSysSDK.DeviceCapabilityCode : Swift.RawRepresentable {}
+extension SightSysSDK.NetworkCapabilityCode : Swift.Equatable {}
+extension SightSysSDK.NetworkCapabilityCode : Swift.Hashable {}
+extension SightSysSDK.NetworkCapabilityCode : Swift.RawRepresentable {}
+extension SightSysSDK.VideoCapabilityCode : Swift.Equatable {}
+extension SightSysSDK.VideoCapabilityCode : Swift.Hashable {}
+extension SightSysSDK.VideoCapabilityCode : Swift.RawRepresentable {}
+extension SightSysSDK.AudioCapabilityCode : Swift.Equatable {}
+extension SightSysSDK.AudioCapabilityCode : Swift.Hashable {}
+extension SightSysSDK.AudioCapabilityCode : Swift.RawRepresentable {}
+extension SightSysSDK.PowerCapabilityCode : Swift.Equatable {}
+extension SightSysSDK.PowerCapabilityCode : Swift.Hashable {}
+extension SightSysSDK.PowerCapabilityCode : Swift.RawRepresentable {}
+extension SightSysSDK.RecordingCapabilityCode : Swift.Equatable {}
+extension SightSysSDK.RecordingCapabilityCode : Swift.Hashable {}
+extension SightSysSDK.RecordingCapabilityCode : Swift.RawRepresentable {}
+extension SightSysSDK.PTZControlCapabilityCode : Swift.Equatable {}
+extension SightSysSDK.PTZControlCapabilityCode : Swift.Hashable {}
+extension SightSysSDK.PTZControlCapabilityCode : Swift.RawRepresentable {}
+extension SightSysSDK.MotionDetectionCapabilityCode : Swift.Equatable {}
+extension SightSysSDK.MotionDetectionCapabilityCode : Swift.Hashable {}
+extension SightSysSDK.MotionDetectionCapabilityCode : Swift.RawRepresentable {}
+extension SightSysSDK.SoundDetectionCapabilityCode : Swift.Equatable {}
+extension SightSysSDK.SoundDetectionCapabilityCode : Swift.Hashable {}
+extension SightSysSDK.SoundDetectionCapabilityCode : Swift.RawRepresentable {}
+extension SightSysSDK.LightCapabilityCode : Swift.Equatable {}
+extension SightSysSDK.LightCapabilityCode : Swift.Hashable {}
+extension SightSysSDK.LightCapabilityCode : Swift.RawRepresentable {}
+extension SightSysSDK.SDCardCapabilityCode : Swift.Equatable {}
+extension SightSysSDK.SDCardCapabilityCode : Swift.Hashable {}
+extension SightSysSDK.SDCardCapabilityCode : Swift.RawRepresentable {}
+extension SightSysSDK.RecordMode : Swift.Equatable {}
+extension SightSysSDK.RecordMode : Swift.Hashable {}
+extension SightSysSDK.RecordMode : Swift.RawRepresentable {}
+extension SightSysSDK.ConnectionMethod : Swift.Equatable {}
+extension SightSysSDK.ConnectionMethod : Swift.Hashable {}
+extension SightSysSDK.ConnectionMethod : Swift.RawRepresentable {}
+extension SightSysSDK.EventType : Swift.Equatable {}
+extension SightSysSDK.EventType : Swift.Hashable {}
+extension SightSysSDK.EventType : Swift.RawRepresentable {}
+extension SightSysSDK.DeviceType : Swift.Equatable {}
+extension SightSysSDK.DeviceType : Swift.Hashable {}
+extension SightSysSDK.DeviceType : Swift.RawRepresentable {}
+extension SightSysSDK.AdapterPlatform : Swift.Equatable {}
+extension SightSysSDK.AdapterPlatform : Swift.Hashable {}
+extension SightSysSDK.AdapterPlatform : Swift.RawRepresentable {}
+extension SightSysSDK.Capability.DataMode : Swift.Equatable {}
+extension SightSysSDK.Capability.DataMode : Swift.Hashable {}
+extension SightSysSDK.Capability.DataMode : Swift.RawRepresentable {}
+extension SightSysSDK.Capability.DataType : Swift.Equatable {}
+extension SightSysSDK.Capability.DataType : Swift.Hashable {}
+extension SightSysSDK.Capability.DataType : Swift.RawRepresentable {}
